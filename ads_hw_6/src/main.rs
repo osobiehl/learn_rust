@@ -13,9 +13,9 @@ fn compute_and_run<T: Copy + PartialOrd>(arr: &mut [T], f: fn(&mut [T])->usize)-
 
 }
 
-const SIZE: usize = 100;
+const SIZE: usize = 1000;
 const INT_MAX:i32 = 2>>20;
-const N: u128 = 100;
+const N: u128 = 100000;
 fn main() {
     let fns = [lib::DefaultPartition::<i32>, lib::HoarePartition::<i32>, lib::MedianOfThreePartition::<i32>];
     let mut avg: [u128;3] = [0,0,0];

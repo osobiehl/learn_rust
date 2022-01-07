@@ -49,7 +49,7 @@ pub fn HoarePartition<T: Copy + PartialOrd>(arr: &mut [T])->usize{
 
     let pivot = arr[0];
     let mut hi = arr.len() -1;
-    let mut lo = 0;
+    let mut lo = 1;
 
     // match arr.len(){
     //     1 => return 0,
@@ -61,14 +61,14 @@ pub fn HoarePartition<T: Copy + PartialOrd>(arr: &mut [T])->usize{
     dbg!(lo, hi);
     
 
-    while arr[lo] < pivot{
+    while lo < arr.len() && arr[lo] < pivot {
         lo+=1;
     }
     while arr[hi] > pivot{
         hi-=1;
     }
 
-    if lo >= hi {return hi}
+    if lo >= hi {arr.swap(0,hi); return hi}
     arr.swap(lo, hi);
     
     loop{
@@ -81,7 +81,7 @@ pub fn HoarePartition<T: Copy + PartialOrd>(arr: &mut [T])->usize{
             hi-=1;
         }
 
-        if lo >= hi {return hi}
+        if lo >= hi {arr.swap(0,hi); return hi}
         arr.swap(lo, hi)
     }
 }
