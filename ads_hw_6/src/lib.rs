@@ -26,7 +26,7 @@ T: PartialOrd + Copy + std::fmt::Debug{
     }
     fn heapify(&mut self){
         let mid = self.arr.len() / 2;
-        dbg!(mid);
+        // dbg!(mid);
         for i in (0..mid).rev(){
             // dbg!(i);
             self.sink(i);
