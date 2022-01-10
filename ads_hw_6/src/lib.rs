@@ -1,171 +1,198 @@
-/// uses the first element in the array
-pub fn DefaultPartition<T: Copy + PartialOrd >(arr: & mut [T])->usize{
-    let pivot = arr[0];
-    let mut p: usize = 1;
-    let l = arr.len();
-    for i in 1..l{
-        if arr[i] <= pivot{
-            arr.swap(i, p);
-            p+= 1;
-        }
-    }
-    arr.swap(0, p-1);
-    return p-1;
-
+struct Heap<'a, T> where
+T: PartialOrd + Copy + std::fmt::Debug{
+    arr: &'a mut [T],
+    size: usize
+}
+pub fn heap_sort<'a, T>(arr: &'a mut [T]) where
+T: PartialOrd + Copy + std::fmt::Debug{
+    let mut  H = Heap::from(arr);
+    H.sort();
 
 }
+pub fn heap_sort_bottomup<'a, T>(arr: &'a mut [T]) where
+T: PartialOrd + Copy + std::fmt::Debug{
+    let mut  H = Heap::from(arr);
+    H.bottom_up_sort();
+}
 
-fn median_index<T: PartialOrd>(arr: &[T])->usize{
-    let a:& T;
-    let b:& T;
-    let c:& T;
-    let m = arr.len()/2;
-    a = &  arr[0];
-    b = &  arr[m];
-    c = & arr[arr.len()-1];
-
-    if  (*a > *b) ^ (*a > *c) {
-        return 0;
+impl<'a,T>  Heap<'a,T> where
+T: PartialOrd + Copy + std::fmt::Debug{
+    fn from(arr: &'a mut [T])->Heap<'a, T>{
+        let l = arr.len();
+        
+        let mut H = Heap {arr, size: l};
+        H.heapify();
+        return Heap { arr, size: l };
     }
-    else{
-        if (*a > *b) ^ (* b > *c ) {
-            return arr.len() -1
+    fn heapify(&mut self){
+        let mid = self.arr.len() / 2;
+        dbg!(mid);
+        for i in (0..mid).rev(){
+            // dbg!(i);
+            self.sink(i);
         }
-        else {return m}
+
+    }
+    fn sink(&mut self, indx: usize){
+        let x = self.children(indx);
+        // dbg!(x);
+        
+        if let (Some(x), Some(y)) = x{
+            let a =&mut self.arr;
+            let (g, g_i) = if a[x] > a[y] {(a[x],x)} else {(a[y], y)};
+            if a[g_i] > a[indx]{
+                a.swap(g_i, indx);
+                self.sink(g_i);
+            }
+        }
+        else if let(Some(x), None ) = x{
+            let a =&mut self.arr;   
+            if a[x] > a[indx]{
+                a.swap(x, indx);
+
+            }
+
+        }
+        
+    }
+    pub fn sort(&mut self){
+        for i in (1..self.arr.len()).rev(){
+            self.arr.swap(0, i);
+            self.size -= 1;
+            self.sink(0);
+            // dbg!(&self.arr);
+        }
+        self.size = self.arr.len();
+
+
+}    
+    fn max(&self, l: usize, r: usize)->usize{
+        return if self.arr[l] > self.arr[r] {l} else {r}
+    }
+    fn float_down(&mut self, idx: usize)->usize{
+        let mut i = idx;
+        loop{
+            let mut c =  self.children(i);
+            i = match c{
+                (Some(x), Some(y)) => self.max(x,y),
+                (Some(x), None) => x,
+                _ => break (),
+
+            }
+
+        };
+        return i;
+    }
+
+
+
+    fn fix_up(&mut self, val_idx: usize, mut float_idx: usize)->usize{
+        let  a =  & mut self.arr;
+        while a[val_idx] > a[float_idx] {
+            float_idx = Heap::<T>::parent(float_idx);
+        }
+        let mut temp = a[float_idx];
+        a[float_idx] = a[val_idx];
+        fn swap<T: Copy>(a: &mut T, b: &mut T){
+            let temp = *a;
+            *a = *b;
+            *b = temp;
+        }
+        while float_idx > val_idx{
+            float_idx = Heap::<T>::parent(float_idx);
+            swap(&mut a[float_idx], &mut temp)
+        }
+
+
+
+        
+        
+        return 0
+    }
+
+    pub fn parent(idx: usize)->usize{
+        return (idx-1)/2;
+    }
+
+    pub fn bottom_up_sort(&mut self){
+        for i in (1..self.arr.len()).rev(){
+            self.arr.swap(0, i);
+            self.size -= 1;
+            let idx = self.float_down(0);
+            self.fix_up(0, idx);
+            
+            // dbg!(&self.arr);
+        }
+        self.size = self.arr.len();
+    }
+    fn children(&self, indx: usize)->(Option<usize>, Option<usize>){
+        let c = indx * 2 + 1;
+        if c <self.size -1{
+            return (Some(c), Some(c+1));
+        }
+        if c >= self.size{
+            return (None, None);
+        }
+        else {
+            return (Some(c), None)
+        }
+
+    }
+}
+
+
+
+
+pub fn bubble_sort<T>(arr: &mut [T])
+where T: PartialOrd + std::fmt::Debug + Copy{
+    for i in 0..arr.len(){
+        let mut swapped = false;
+        for j in 1..arr.len(){
+            if arr[j] < arr[j-1]{
+                swapped = true;
+                arr.swap(j, j-1);
+            }
+        }
+        if swapped == false{break;}
     }
 
 }
-
-pub fn MedianOfThreePartition
-<T: Copy + PartialOrd >(arr: & mut [T])->usize{
-    
-    let p = median_index(arr);
-    arr.swap(0,p);
-
-    return DefaultPartition(arr);
-}
-
-pub fn HoarePartition<T: Copy + PartialOrd>(arr: &mut [T])->usize{
-
-    let pivot = arr[0];
-    let mut hi = arr.len() -1;
-    let mut lo = 1;
-
-    // match arr.len(){
-    //     1 => return 0,
-    //     2 => {if pivot > arr[1]{ arr.swap(0,1); return 1} else {return 0}}
-    //     _ => ()
-
-    // }
-
-    dbg!(lo, hi);
-    
-
-    while lo < arr.len() && arr[lo] < pivot {
-        lo+=1;
-    }
-    while arr[hi] > pivot{
-        hi-=1;
-    }
-
-    if lo >= hi {arr.swap(0,hi); return hi}
-    arr.swap(lo, hi);
-    
-    loop{
-        lo+=1;
-        while arr[lo] < pivot{
-            lo+=1;
-        }
-        hi-= 1;
-        while arr[hi] > pivot{
-            hi-=1;
-        }
-
-        if lo >= hi {arr.swap(0,hi); return hi}
-        arr.swap(lo, hi)
-    }
-}
-pub fn QuickSort< T: Copy + PartialOrd >(arr: &mut [T], partition: Option<fn(& mut [T]) -> usize>)  {
-    if arr.len() <= 1{
-        return;
-    }
-    let partition = partition.unwrap_or(DefaultPartition );
-    let m = partition(arr);
-    let (arr1, temp) = arr.split_at_mut(m);
-    if arr1.len() > 1{
-        QuickSort(arr1, Some(partition));
-    }
-    if temp.len() > 2{
-        QuickSort(&mut temp[1..], Some(partition))
-    }
-
-    
-
-
+pub fn is_sorted<T>(arr: &mut [T])->bool
+where T: PartialOrd + std::fmt::Debug + Copy{
+    return arr.windows(2).all(|x|  
+        x[0] <= x[1]
+    );
 }
 
 #[cfg(test)]
-mod tests {
+mod tests{
     use super::*;
     #[test]
-    fn correct_partition(){
-        let mut v = vec![4,6,2,7,3];
-        let ans = DefaultPartition(&mut v);
-        assert_eq!(v, vec![3,2,4,7,6]);
-        assert_eq!(ans, 2)
-
+    fn test(){
+        let mut v = vec![1,9,0,2,8,3,4,5,7,6,7,7];
+        bubble_sort(&mut v);
+        assert!(is_sorted(&mut v));
     }
     #[test]
-    fn correct_MedianOfThreeIndex(){
-        let mut v = vec![4,6,2,7,3];
-        let ans = median_index(&mut v);
-        assert_eq!(ans, 4);
+    fn is_heap(){
+        let mut v = vec![1,9,0,2,8,3,4,5,7,6,7,7];
+        dbg!(&v);
+        let H = Heap::from(&mut v);
 
+        dbg!(&H.arr);
     }
-
     #[test]
-    fn correct_HoareSort(){
-
-        let v = vec![1,2,3,4,5,6,7,8,9];
-        let mut v1 = v.clone();
-        QuickSort(&mut v1, Some(HoarePartition) );
-        assert_eq!(v1, v);
-        let mut v2 = vec![7,9,5,8,6,4,1,3,2];
-        QuickSort(&mut v2, Some(HoarePartition));
-        assert_eq!(v2, v);
-
-
+    fn heap_test(){
+        let mut v = vec![1,9,0,2,8,3,4,5,7,6,7,7];
+        heap_sort(&mut v);
+        dbg!(&v);
+        assert!(is_sorted(&mut v));
     }
-
     #[test]
-    fn correct_MedianOfThreeSort(){
-
-        let v = vec![1,2,3,4,5,6,7,8,9];
-        let mut v1 = v.clone();
-        QuickSort(&mut v1, Some(MedianOfThreePartition) );
-        assert_eq!(v1, v);
-        let mut v2 = vec![7,9,5,8,6,4,1,3,2];
-        QuickSort(&mut v2, Some(MedianOfThreePartition));
-        assert_eq!(v2, v);
-
-
+    fn heap_test_bottomup(){
+        let mut v = vec![1,9,0,2,8,3,4,5,7,6,7,7];
+        heap_sort_bottomup(&mut v);
+        dbg!(&v);
+        assert!(is_sorted(&mut v));
     }
-
-
-    #[test]
-    fn correct_quicksort(){
-        let v = vec![1,2,3,4,5,6,7,8,9];
-        let mut v1 = v.clone();
-        QuickSort(&mut v1, None);
-        assert_eq!(v1, v);
-        let mut v2 = vec![7,9,5,8,6,4,1,3,2];
-        QuickSort(&mut v2, None);
-        assert_eq!(v2, v);
-
-
-
-
-
-    }
-
 }

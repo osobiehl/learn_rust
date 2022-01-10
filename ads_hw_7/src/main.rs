@@ -1,17 +1,29 @@
 mod lib;
-use std::time::SystemTime;
-fn compute_and_run<T>(arr: &mut [T], f: fn(&mut [T])->() ) -> u128 where
-T: PartialOrd + Copy + std::fmt::Debug{
+use std::time::{Duration, SystemTime};
+use std::vec;
+use rand::prelude::*;
+use lib::*;
+
+fn compute_and_run<T: Copy + PartialOrd>(arr: &mut [T], f: fn(&mut [T])->usize)->u128{
+        let now = SystemTime::now();
+        QuickSort(arr, Some(f));
+        let stop = now.elapsed().unwrap().as_micros();
+        return stop;
+}
+fn compute_and_run_3<T: Copy + PartialOrd + std::fmt::Display + std::fmt::Debug>(arr: &mut [T])->u128{
     let now = SystemTime::now();
-    f(arr);
+    quick_sort_3(arr);
     let stop = now.elapsed().unwrap().as_micros();
     return stop;
 }
-const N: i32 = 100;
-const SIZE: usize = 100000;
+
+const SIZE: usize = 10000;
+const INT_MAX:i32 = 2>>20;
+const N: u128 = 100;
 fn main() {
-    let fns = [lib::heap_sort::<i32>, lib::heap_sort_bottomup::<i32>, lib::bubble_sort::<i32>];
+    let fns = [lib::DefaultPartition::<i32>, lib::HoarePartition::<i32>, lib::MedianOfThreePartition::<i32>];
     let mut avg: [u128;3] = [0,0,0];
+    let mut avg3: u128 = 0;
     for _ in  0..N{
         let v: Vec<i32> = (0..SIZE).map(|_| rand::thread_rng().gen_range(0..=100)).collect();
         
@@ -32,4 +44,3 @@ Hoare: {} us\n \
 MedianOfThree: {} us\n
 average of 3: {} us", avg[0], avg[1], avg[2], avg3);
 }
-
