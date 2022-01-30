@@ -251,8 +251,8 @@ impl PartialEq for Djikstra_Edge{
     }
 }
 impl PartialOrd for Djikstra_Edge{
-    fn partial_cmp(&self, other: &Self)->Ordering{
-        return self.W.cmp(&other.W);
+    fn partial_cmp(&self, other: &Self)->Option<Ordering>{
+        return Some(self.W.cmp(&other.W) );
     }
     fn lt(&self, other: &Self) -> bool {
         return self.W < other.W;
@@ -270,10 +270,15 @@ impl PartialOrd for Djikstra_Edge{
 }
 
 pub fn Djikstra<T: Sized + std::fmt::Debug>(D: &mut [Vec<T>]){
-    let min_queue: Min_Queue<Djikstra_Edge> = Min_Queue::new()
-    for (i, V) in D.iter().enumerate(){
+    let min_queue: Min_Queue<Djikstra_Edge> = Min_Queue::new();
+
+    for i in 0..D.len(){
+        for j in 0..D[i].len(){
+
+        }
+    }
         
 
-    }
+    
 
 }
