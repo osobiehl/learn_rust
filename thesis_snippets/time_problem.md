@@ -8,6 +8,7 @@ consider a project with the following structure:
 Each of these directories represents a separate Rust crate. For the sake of brevity, only the CountDown trait is considered and used to write impl blocks. The code is as follows
 ## embedded_hal_declaration
 ```rust
+/// as defined in the embedded_hal crate before being removed for version 1.0.0
 pub trait CountDown {
     /// The unit of time used by this timer
     type Time;
@@ -16,7 +17,7 @@ pub trait CountDown {
     fn start<T>(&mut self, count: T)
     where
         T: Into<Self::Time>;
-        //nb: non-blocking library
+        //normally uses non-blocking library, removed for brevity
     fn wait(&mut self) -> Result<(), ()>;
 }
 
@@ -83,7 +84,7 @@ fn main() {
 }
 ```
 ## solutions
-Due to Rust's orphan rule, it is not allowed for developers to write impl blocks if the trait and the types are defined in different crates. Some of the basic solutions are:
+Due to Rust's *orphan rule*, it is not allowed for developers to write impl blocks if the trait and the types are defined in different crates. Some of the basic solutions are:
 -  Create a wrapper type around the time type they want to use, then write the impl blocks for the HAL using the wrapper type. This bypasses the orphan rule because it defines the new types in the same crate where the impl blocks will be written
 -  Expose the primitive type used for the timer. this is usually of type `u32` or `u64` depending on the architecture used. This may work for simple clocks, but ones with dynamic precision and other features will not work.
 -  Homogenize time into a library. This is currently being implemented by projects such as [embedded-time](https://github.com/FluenTech/embedded-time) have tried to provide a common library for working with time using various platforms, but the project seems to have lost steam (no commits since  OCT 2021). Other projects, such as [drogue-embedded-timer](https://github.com/drogue-iot/drogue-embedded-timer) also offer to provide macros to convert HAL-specific timers into generic `embedded-time` timers. However, The project seems somewhat abandoned (no commits since OCT 2020);
