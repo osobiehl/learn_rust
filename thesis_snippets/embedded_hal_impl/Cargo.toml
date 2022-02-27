@@ -1,0 +1,10 @@
+[package]
+name = "embedded_hal_impl"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+"embedded_hal_declaration" = { path="../embedded_hal_declaration" }
+"time_lib" = {path="../time_lib"}

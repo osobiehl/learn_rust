@@ -274,7 +274,7 @@ pub fn Djikstra<T: Sized + std::fmt::Debug>(D: &mut [Vec<T>]){
 
     for i in 0..D.len(){
         for j in 0..D[i].len(){
-
+            
         }
     }
         
